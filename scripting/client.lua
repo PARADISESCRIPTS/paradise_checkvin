@@ -1,4 +1,4 @@
-local QBCore = exports['qb-core']:GetCoreObject()
+ESX = exports["es_extended"]:getSharedObject()
 local checking = false
 
 -- Function to get vehicle model name
@@ -44,7 +44,7 @@ end
 local function IsNearVehicle()
     local ped = PlayerPedId()
     local coords = GetEntityCoords(ped)
-    local vehicle = QBCore.Functions.GetClosestVehicle(coords)
+    local vehicle = ESX.Game.GetClosestVehicle(coords)
     if vehicle ~= 0 and #(coords - GetEntityCoords(vehicle)) < Config.CheckDistance then
         return vehicle
     end
@@ -65,8 +65,8 @@ local function CheckVehicle()
         return
     end
 
-    local Player = QBCore.Functions.GetPlayerData()
-    if Player.job.name ~= Config.RequiredJob then
+    ESX.PlayerData = ESX.GetPlayerData()
+    if ESX.PlayerData.job.name ~= Config.RequiredJob then
         lib.notify({
             title = 'Error',
             description = Config.Notifications.notCop,

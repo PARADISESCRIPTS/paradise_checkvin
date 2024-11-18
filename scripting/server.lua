@@ -1,4 +1,4 @@
-local QBCore = exports['qb-core']:GetCoreObject()
+ESX = exports["es_extended"]:getSharedObject()
 
 local function GetRandomName()
     local first = Config.RandomNames.firstNames[math.random(#Config.RandomNames.firstNames)]
@@ -9,13 +9,13 @@ end
 RegisterNetEvent('paradsie_checkvin:checkVehicleInfo')
 AddEventHandler('paradsie_checkvin:checkVehicleInfo', function(plate, model)
     local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
+    local xPlayer = ESX.GetPlayerFromId(src)
     
-    if Player.PlayerData.job.name ~= Config.RequiredJob then
+    if xPlayer.job.name ~= Config.RequiredJob then
         return
     end
     
-    MySQL.Async.fetchAll('SELECT * FROM player_vehicles WHERE plate = @plate', {
+    MySQL.Async.fetchAll('SELECT * FROM owned_vehicles WHERE plate = @plate', {
         ['@plate'] = plate
     }, function(result)
         local vehicleInfo = {
@@ -28,12 +28,11 @@ AddEventHandler('paradsie_checkvin:checkVehicleInfo', function(plate, model)
         }
         
         if result[1] then
-            MySQL.Async.fetchAll('SELECT * FROM players WHERE citizenid = @citizenid', {
-                ['@citizenid'] = result[1].citizenid
+            MySQL.Async.fetchAll('SELECT firstname, lastname FROM users WHERE identifier = @identifier', {
+                ['@identifier'] = result[1].owner
             }, function(playerResult)
                 if playerResult[1] then
-                    local charinfo = json.decode(playerResult[1].charinfo)
-                    vehicleInfo.owner = charinfo.firstname .. ' ' .. charinfo.lastname
+                    vehicleInfo.owner = playerResult[1].firstname .. ' ' .. playerResult[1].lastname
                     vehicleInfo.status = "REGISTERED"
                     vehicleInfo.insurance = "VALID"
                     vehicleInfo.registration = "VALID"
